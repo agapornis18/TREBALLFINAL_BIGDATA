@@ -40,59 +40,232 @@
                 <h3>Objetivos del estudio</h3>
                 <p>Nuestro objetivo principal es analizar las tendencias musicales representadas en las playlists top 50 de Spotify de 73 países diferentes. Queremos entender qué artistas, canciones y géneros son más populares en diversas partes del mundo y cómo estas preferencias pueden variar según la nación. Esto nos permitirá obtener una visión global de la música y entender cómo la música llega a todos lados y cómo afecta a la gente de distintas culturas, y también dar información útil a la gente del mundo de la música, del ámbito de publicidad y a los fans que quieren encontrar nuevos artistas y canciones y saber qué está de moda (y que no). </p>
                 <h3>Extracción de datos</h3>
-                <p>PONER AQUI PUNTO 3 Y 4 DEL DRIVE + los CODIGOS </p>
+                <p>Para la obtención de los datos de las playlist se ha utilizado Pycharm y la API de Spotify. Asimismo, se han descargado diferentes librerías y utilizado diversos módulos como pandas para trabajar con datos estructurados, glob para ejecutar archivos y directorios, spotipy, JSON, etc.</p>
+		<p>Previamente, se elaboró manualmente un archivo excel llamado “playlist.xlsx” con datos de 73 playlists que contienen el país, la ID y el nombre de la playlist.</p>
+		<p><b>Primera extracción de Datos</b></p>
+		<p>El siguiente código hace uso de la biblioteca Spotipy y realiza llamamientos a la API de Spotify para la obtención de datos sobre listas de reproducción de diferentes países y los guarda en archivos JSON.</p> 
+		<p>Luego, utiliza un archivo Excel llamado "playlist.xlsx" que contiene las IDs de las playlists que se quieren extraer. Los datos obtenidos se cargan en Dataframes de Pandas que lee cada una de las ID de las playlist y su país correspondiente.</p>
+<!-- HTML generated using hilite.me --><div style="background: #000000; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #cccccc">playlists</span> <span style="color: #3399cc">=</span> <span style="color: #cccccc">pd</span><span style="color: #3399cc">.</span><span style="color: #cccccc">read_excel(</span><span style="color: #cd0000">&quot;playlist.xlsx&quot;</span><span style="color: #cccccc">)</span>
+</pre></div>
+		<p>El almacenamiento de los datos se guarda en una carpeta llamada raw_data, donde se varia el nombre del archivo para evitar problemas con los nombres de los archivos, donde se tiene en cuenta el país de cada playlist. También se asegura que la llamada la API se haga solo si el archivo de la ID pasada no existe.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">index,</span> <span style="color: #f8f8f2">row</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">playlists</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">iterrows():</span>
+    <span style="color: #f8f8f2">pais</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">row[</span><span style="color: #e6db74">&quot;COUNTRY&quot;</span><span style="color: #f8f8f2">]</span>
+    <span style="color: #f8f8f2">playlist_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">row[</span><span style="color: #e6db74">&quot;ID&quot;</span><span style="color: #f8f8f2">]</span>
+    <span style="color: #f8f8f2">playlist_name</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">row[</span><span style="color: #e6db74">&quot;NAME&quot;</span><span style="color: #f8f8f2">]</span>
+    <span style="color: #f8f8f2">file_path</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">Path(f</span><span style="color: #e6db74">&#39;raw_data/{pais}-{playlist_id}.json&#39;</span><span style="color: #f8f8f2">)</span>
+
+    <span style="color: #66d9ef">if</span> <span style="color: #f8f8f2">file_path</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">exists():</span>
+        <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(f</span><span style="color: #e6db74">&quot;La playlist {playlist_id} ya se ha descargado&quot;</span><span style="color: #f8f8f2">)</span>
+        <span style="color: #66d9ef">pass</span>
+    <span style="color: #66d9ef">else</span><span style="color: #f8f8f2">:</span>
+        <span style="color: #f8f8f2">api_response</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">spotify</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">playlist_items(playlist_id)</span>
+        <span style="color: #66d9ef">with</span> <span style="color: #f8f8f2">open(file_path,</span> <span style="color: #e6db74">&#39;w&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">encoding</span><span style="color: #f92672">=</span><span style="color: #e6db74">&#39;utf-8&#39;</span><span style="color: #f8f8f2">)</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">f:</span>
+            <span style="color: #f8f8f2">json</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">dump(api_response,</span> <span style="color: #f8f8f2">f,</span> <span style="color: #f8f8f2">ensure_ascii</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">False,</span> <span style="color: #f8f8f2">indent</span><span style="color: #f92672">=</span><span style="color: #ae81ff">4</span><span style="color: #f8f8f2">)</span>
+</pre></div>
+		<p>Una vez se tienen todos los archivos JSON en la carpeta se usa la librería “glob” para cargar todos los datos.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">files</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">glob</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">glob(</span><span style="color: #e6db74">&quot;raw_data/*json&quot;</span><span style="color: #f8f8f2">)</span>
+</pre></div>	
+		<h3>Procesamiento y combinación del conjunto de datos</h3>
+		<p>Una vez se hace esto se procesan los datos de cada archivo JSON para extraer la información de nuestro interés como los nombres de los artistas, nombre de las canciones, popularidad, duración, si es explicita y el ID del primer artista.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">all_data</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">[]</span>  
+
+<span style="color: #f8f8f2">files</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">glob</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">glob(</span><span style="color: #e6db74">&quot;raw_data/*.json&quot;</span><span style="color: #f8f8f2">)</span>
+<span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(len(files))</span>
+
+<span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">file</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">files:</span>
+    <span style="color: #f8f8f2">playlist_data</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">[]</span> 
+
+    <span style="color: #66d9ef">with</span> <span style="color: #f8f8f2">open(file,</span> <span style="color: #e6db74">&#39;r&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">encoding</span><span style="color: #f92672">=</span><span style="color: #e6db74">&#39;utf-8&#39;</span><span style="color: #f8f8f2">)</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">f:</span>
+        <span style="color: #f8f8f2">datos</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">json</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">load(f)</span>
+        <span style="color: #66d9ef">try</span><span style="color: #f8f8f2">:</span>
+            <span style="color: #f8f8f2">pais</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">file</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">split(</span><span style="color: #e6db74">&quot;-&quot;</span><span style="color: #f8f8f2">)[</span><span style="color: #ae81ff">0</span><span style="color: #f8f8f2">]</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">split(</span><span style="color: #e6db74">&quot;/&quot;</span><span style="color: #f8f8f2">)[</span><span style="color: #ae81ff">1</span><span style="color: #f8f8f2">]</span> 
+        <span style="color: #66d9ef">except</span><span style="color: #f8f8f2">:</span>
+            <span style="color: #f8f8f2">pais</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">file</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">split(</span><span style="color: #e6db74">&quot;-&quot;</span><span style="color: #f8f8f2">)[</span><span style="color: #ae81ff">0</span><span style="color: #f8f8f2">]</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">split(</span><span style="color: #e6db74">&quot;</span><span style="color: #ae81ff">\\</span><span style="color: #e6db74">&quot;</span><span style="color: #f8f8f2">)[</span><span style="color: #ae81ff">1</span><span style="color: #f8f8f2">]</span>
+        <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(pais)</span>
+
+        <span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">item</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">datos[</span><span style="color: #e6db74">&quot;items&quot;</span><span style="color: #f8f8f2">]:</span>
+            <span style="color: #f8f8f2">artists</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">[artists[</span><span style="color: #e6db74">&quot;name&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">artists</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">item[</span><span style="color: #e6db74">&quot;track&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;album&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;artists&quot;</span><span style="color: #f8f8f2">]]</span>
+            <span style="color: #f8f8f2">track_name</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">item[</span><span style="color: #e6db74">&quot;track&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;name&quot;</span><span style="color: #f8f8f2">]</span>
+            <span style="color: #f8f8f2">popularity</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">item[</span><span style="color: #e6db74">&quot;track&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;popularity&quot;</span><span style="color: #f8f8f2">]</span>
+            <span style="color: #f8f8f2">playlist</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pais</span>
+            <span style="color: #f8f8f2">track_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">item[</span><span style="color: #e6db74">&quot;track&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;id&quot;</span><span style="color: #f8f8f2">]</span>
+            <span style="color: #f8f8f2">duration_ms</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">item[</span><span style="color: #e6db74">&quot;track&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;duration_ms&quot;</span><span style="color: #f8f8f2">]</span>
+            <span style="color: #f8f8f2">explicit</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">item[</span><span style="color: #e6db74">&quot;track&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;explicit&quot;</span><span style="color: #f8f8f2">]</span>
+            <span style="color: #f8f8f2">primer_artista_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">item[</span><span style="color: #e6db74">&quot;track&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;artists&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #ae81ff">0</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;id&quot;</span><span style="color: #f8f8f2">]</span>
+            <span style="color: #f8f8f2">playlist_url</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">datos[</span><span style="color: #e6db74">&quot;href&quot;</span><span style="color: #f8f8f2">]</span>
+            <span style="color: #f8f8f2">playlist_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">playlist_url</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">split(</span><span style="color: #e6db74">&quot;/&quot;</span><span style="color: #f8f8f2">)[</span><span style="color: #f92672">-</span><span style="color: #ae81ff">2</span><span style="color: #f8f8f2">]</span>
+
+            <span style="color: #f8f8f2">tupla</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">(artists,</span> <span style="color: #f8f8f2">track_name,</span> <span style="color: #f8f8f2">popularity,</span> <span style="color: #f8f8f2">primer_artista_id,</span> <span style="color: #f8f8f2">playlist_id,</span> <span style="color: #f8f8f2">playlist,</span> <span style="color: #f8f8f2">track_id,</span> <span style="color: #f8f8f2">duration_ms,</span> <span style="color: #f8f8f2">explicit)</span>
+            <span style="color: #f8f8f2">playlist_data</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">append(tupla)</span>
+
+    <span style="color: #f8f8f2">df_playlist</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">DataFrame(playlist_data,</span>
+                               <span style="color: #f8f8f2">columns</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">[</span><span style="color: #e6db74">&#39;artistas&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&#39;track_name&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&#39;popularity&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&#39;primer_artista_id&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&#39;playlist_id&#39;</span><span style="color: #f8f8f2">,</span>
+                                        <span style="color: #e6db74">&#39;playlist&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&quot;track_id&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&quot;duration_ms&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&quot;explicit&quot;</span><span style="color: #f8f8f2">])</span>
+    <span style="color: #f8f8f2">all_data</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">append(df_playlist)</span> 
+</pre></div>
+		<p>Todos estos datos se depositan en la lista vacia <b>all_data</b> y se combinan todos los DataFrames individuales en un solo y se almacena en un archivo excel.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">df_combined</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">concat(all_data,</span> <span style="color: #f8f8f2">ignore_index</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">True)</span>
+
+<span style="color: #f8f8f2">df_combined</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">to_excel(</span><span style="color: #e6db74">&quot;canciones_en_playlists.xlsx&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">index</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">False)</span>
+</pre></div>
+		<p>Para las características de audio de cada canción se define una función que llama la API de spotify pasando el ID de la canción y se usa un try y except para manejar posibles errores que se puedan presentar mientras se ejecuta la función y evitar que se detenga el programa abruptamente. Si no hay problemas se almacena un archivo dentro de la carpeta paso2, donde varia el nombre del archivo según la ID y si hay un error se guarda el mensaje de error, la ID para un análisis posterior y reintenta la solicitud después de un tiempo.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #66d9ef">def</span> <span style="color: #a6e22e">get_audio_features</span><span style="color: #f8f8f2">(track):</span>
+    <span style="color: #f8f8f2">track_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">track</span> 
+    <span style="color: #66d9ef">try</span><span style="color: #f8f8f2">:</span>
+        <span style="color: #f8f8f2">audio_features</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">spotify</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">audio_features(track_id)</span>
+        <span style="color: #f8f8f2">data</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">DataFrame</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">from_dict(audio_features,</span> <span style="color: #f8f8f2">orient</span><span style="color: #f92672">=</span><span style="color: #e6db74">&#39;columns&#39;</span><span style="color: #f8f8f2">)</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;track_id&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">track_id</span>
+        <span style="color: #f8f8f2">data</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">to_excel(f</span><span style="color: #e6db74">&quot;paso2/{track_id}-audio_features.xlsx&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">index</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">False)</span>
+
+    <span style="color: #66d9ef">except</span> <span style="color: #f8f8f2">spotipy</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">exceptions</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">SpotifyException</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">e:</span>
+        <span style="color: #f8f8f2">handle_spotify_exception(e,</span> <span style="color: #f8f8f2">track_id)</span>
+      
+</pre></div>
+		<p>El procesamiento de las características del audio se hace iterando en todas las pistas únicas dentro del dataset de playlist para obtener sus características y guardar en un archivo Excel individual.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">df</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">read_excel(</span><span style="color: #e6db74">&quot;canciones_en_playlists.xlsx&quot;</span><span style="color: #f8f8f2">)</span>
+
+<span style="color: #f8f8f2">tracks</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">df[</span><span style="color: #e6db74">&quot;track_id&quot;</span><span style="color: #f8f8f2">]</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">unique()</span>
+<span style="color: #f8f8f2">tracks</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">tracks</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">tolist()</span>
+<span style="color: #f8f8f2">jobs</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">len(tracks)</span>
+
+<span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">track</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">tracks:</span>
+    <span style="color: #66d9ef">if</span> <span style="color: #f92672">not</span> <span style="color: #f8f8f2">os</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">path</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">exists(f</span><span style="color: #e6db74">&quot;paso2/{track}-audio_features.xlsx&quot;</span><span style="color: #f8f8f2">):</span>
+
+        <span style="color: #f8f8f2">get_audio_features(track)</span>
+        <span style="color: #f8f8f2">time</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">sleep(random</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">randint(</span><span style="color: #ae81ff">2</span><span style="color: #f8f8f2">,</span> <span style="color: #ae81ff">3</span><span style="color: #f8f8f2">))</span>
+</pre></div>
+		<p>La combinación de las características de audio se hace en primer lugar, cargando los datos de los archivos excel generados en la carpeta “paso2” y se corrobora que el tipo de datos “track_id” coincida para facilitar la combinación posterior.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">dfs</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">glob</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">glob(</span><span style="color: #e6db74">&quot;paso2/*.xlsx&quot;</span><span style="color: #f8f8f2">)</span>
+<span style="color: #f8f8f2">lista</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">[pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">read_excel(d)</span> <span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">d</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">dfs]</span>
+<span style="color: #f8f8f2">final_audio</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">concat(lista)</span>
+<span style="color: #f8f8f2">final_audio</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">track_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">final_audio</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">track_id</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">astype(str)</span>
+</pre></div>
+		<p>Luego se procede a combinar las características de las playlist cargando los datos de las playlist, incluyendo las ID de las pistas.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">df_playlists</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">read_excel(</span><span style="color: #e6db74">&quot;canciones_en_playlists.xlsx&quot;</span><span style="color: #f8f8f2">)</span>
+<span style="color: #f8f8f2">df_playlists</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">track_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">df_playlists</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">track_id</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">astype(str)</span>
+</pre></div>
+		<p>Por otra parte, para obtener información sobre el artista como los seguidores, los géneros a los que pertenece o la popularidad se definió una función en base a su ID.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #66d9ef">def</span> <span style="color: #a6e22e">get_artist_info</span><span style="color: #f8f8f2">(artist):</span>
+    <span style="color: #f8f8f2">artist_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist</span>
+
+    <span style="color: #66d9ef">try</span><span style="color: #f8f8f2">:</span>
+        <span style="color: #f8f8f2">artist_info</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">spotify</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">artist(artist_id)</span>
+</pre></div>
+		<p>Además, se almacena en un archivo Excel individual en una carpeta que definimos como “paso3”.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">data</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">{}</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_followers&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_info[</span><span style="color: #e6db74">&quot;followers&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;total&quot;</span><span style="color: #f8f8f2">]</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_genres&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_info[</span><span style="color: #e6db74">&quot;genres&quot;</span><span style="color: #f8f8f2">]</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_id&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_id</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_popularity&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_info[</span><span style="color: #e6db74">&quot;popularity&quot;</span><span style="color: #f8f8f2">]</span>
+        <span style="color: #f8f8f2">final</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">DataFrame</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">from_dict([data],</span> <span style="color: #f8f8f2">orient</span><span style="color: #f92672">=</span><span style="color: #e6db74">&#39;columns&#39;</span><span style="color: #f8f8f2">)</span>
+        <span style="color: #f8f8f2">final</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">to_excel(f</span><span style="color: #e6db74">&quot;paso3/{artist}-artist_info.xlsx&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">index</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">False)</span>
+</pre></div>
+		<p>A continuación, se realiza la lectura del archivo excel llamado “canciones_en_playlists.xlsx”, y se extraen los IDs de los artistas.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">df</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">read_excel(</span><span style="color: #e6db74">&quot;canciones_en_playlists.xlsx&quot;</span><span style="color: #f8f8f2">)</span>
+
+<span style="color: #f8f8f2">artist_ids</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">df[</span><span style="color: #e6db74">&quot;primer_artista_id&quot;</span><span style="color: #f8f8f2">]</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">unique()</span>
+<span style="color: #f8f8f2">artist_ids</span>  <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_ids</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">tolist()</span>
+<span style="color: #f8f8f2">jobs</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">len(artist_ids)</span>
+</pre></div>
+		<p>Seguidamente, nos encargamos de iterar sobre el ID de cada artista en la lista ‘“artist_ids” comprobando si existe un archivo excel con la información del artista. En caso de no existir, se realiza un llamamiento a la API de Spotify, se almacena en un archivo Excel y tras 2 o 3 segundos se pasa al siguiente artista.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #66d9ef">for</span> <span style="color: #f8f8f2">artist</span> <span style="color: #f92672">in</span> <span style="color: #f8f8f2">artist_ids</span> <span style="color: #f8f8f2">:</span>
+    <span style="color: #f8f8f2">job</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_ids</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">index(artist)</span>
+    <span style="color: #f8f8f2">artist_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist</span>
+    <span style="color: #f8f8f2">wait_time</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">random</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">randint(</span><span style="color: #ae81ff">2</span><span style="color: #f8f8f2">,</span><span style="color: #ae81ff">3</span><span style="color: #f8f8f2">)</span>
+    <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(f</span><span style="color: #e6db74">&quot;working on job {job} of {jobs} | Wait time {wait_time}&quot;</span><span style="color: #f8f8f2">)</span>
+    <span style="color: #f8f8f2">path</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">f</span><span style="color: #e6db74">&quot;paso3/{artist}-artist_info.xlsx&quot;</span>
+    <span style="color: #66d9ef">if</span> <span style="color: #f92672">not</span> <span style="color: #f8f8f2">os</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">path</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">exists(path):</span>
+        <span style="color: #f8f8f2">get_artist_info(artist)</span>
+        <span style="color: #f8f8f2">time</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">sleep(wait_time)</span>
+    <span style="color: #66d9ef">else</span><span style="color: #f8f8f2">:</span>
+        <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(f</span><span style="color: #e6db74">&quot;{artist} ja descarregat&quot;</span><span style="color: #f8f8f2">)</span>
+        <span style="color: #66d9ef">pass</span>
+</pre></div>
+		<p>Luego en otro código, se procede a realizar una combinación de las características de audio con los datos de las playlist utilizando el “track_id” como clave.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">joined</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">merge(final_audio,</span> <span style="color: #f8f8f2">df_playlists,</span> <span style="color: #f8f8f2">on</span><span style="color: #f92672">=</span><span style="color: #e6db74">&quot;track_id&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">how</span><span style="color: #f92672">=</span><span style="color: #e6db74">&quot;left&quot;</span><span style="color: #f8f8f2">)</span>
+</pre></div>
+		<p>Se ajustan las claves de combinación para garantizar una alineación adecuada entre los DataFrames.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">joined[</span><span style="color: #e6db74">&quot;artist_id&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">joined[</span><span style="color: #e6db74">&quot;primer_artista_id&quot;</span><span style="color: #f8f8f2">]</span>
+</pre></div>
+		<p>Se hace una combinación final de los datos de los artistas con los datos combinados anteriores, se usa el artist_id como clave.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">final_dataframe</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">merge(final_2,</span> <span style="color: #f8f8f2">joined,</span> <span style="color: #f8f8f2">on</span><span style="color: #f92672">=</span><span style="color: #e6db74">&quot;artist_id&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">how</span><span style="color: #f92672">=</span><span style="color: #e6db74">&quot;left&quot;</span><span style="color: #f8f8f2">)</span>
+</pre></div>
+		<p>Una vez realizada esta combinación se ha creado un DataFrame que contiene toda la información que queríamos y este se guarda en archivo excel para su uso posterior de uso y análisis en Tableau.</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f8f8f2">final_dataframe</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">to_excel(</span><span style="color: #e6db74">&quot;final_with_audio_and_artist_info.xlsx&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">index</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">False)</span>
+</pre></div>
+		<p>La combinación de datos implica integrar todos los diferentes datos extraidos individualmente en un solo DataFrame, y este proceso se realiza combinando DataFrames individuales utilizando claves específicas como las ID asegurando que la información se alinee de forma correcta para tener un archivo Excel con toda la información recopilada.</p>
+		<p><b>Limitaciones</b></p>
+		<p>En un momento de la obtención de datos, la API de Spotify nos presentó dificultades. Esto es debido a que existen limitaciones en cuanto a la cantidad de solicitudes que se pueden realizar.</p>
+		<p>Los errores frecuentes son el Error 429 (Too Many Requests) que aparece cuando se sobrepasa el límite de solicitudes que nos ofrece la API y por ello se tiene que reducir la velocidad de las peticiones y, el  Error 503 (Service Unavailable) que significa que el servicio de Spotify no se encuentra disponible ya sea por mantenimiento o posibles problemas en los servidores.</p>
+		<p>A continuación, indicamos una parte del código para solucionar este problema:</p>
+		<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #66d9ef">def</span> <span style="color: #a6e22e">get_artist_info</span><span style="color: #f8f8f2">(artist):</span>
+    <span style="color: #f8f8f2">artist_id</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist</span>
+
+    <span style="color: #66d9ef">try</span><span style="color: #f8f8f2">:</span>
+        <span style="color: #f8f8f2">artist_info</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">spotify</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">artist(artist_id)</span>
+
+        <span style="color: #f8f8f2">data</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">{}</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_followers&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_info[</span><span style="color: #e6db74">&quot;followers&quot;</span><span style="color: #f8f8f2">][</span><span style="color: #e6db74">&quot;total&quot;</span><span style="color: #f8f8f2">]</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_genres&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_info[</span><span style="color: #e6db74">&quot;genres&quot;</span><span style="color: #f8f8f2">]</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_id&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_id</span>
+        <span style="color: #f8f8f2">data[</span><span style="color: #e6db74">&quot;artist_popularity&quot;</span><span style="color: #f8f8f2">]</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">artist_info[</span><span style="color: #e6db74">&quot;popularity&quot;</span><span style="color: #f8f8f2">]</span>
+        <span style="color: #f8f8f2">final</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">pd</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">DataFrame</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">from_dict([data],</span> <span style="color: #f8f8f2">orient</span><span style="color: #f92672">=</span><span style="color: #e6db74">&#39;columns&#39;</span><span style="color: #f8f8f2">)</span>
+        <span style="color: #f8f8f2">final</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">to_excel(f</span><span style="color: #e6db74">&quot;paso3/{artist}-artist_info.xlsx&quot;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">index</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">False)</span>
+
+    <span style="color: #66d9ef">except</span> <span style="color: #f8f8f2">spotipy</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">exceptions</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">SpotifyException</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">e:</span>
+        <span style="color: #66d9ef">if</span> <span style="color: #f8f8f2">e</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">http_status</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">429</span><span style="color: #f8f8f2">:</span>
+            <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(e)</span>
+            <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;Error 429 Too many requests Retry in 60 seconds&quot;</span><span style="color: #f8f8f2">)</span>
+            <span style="color: #f8f8f2">time</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">sleep(</span><span style="color: #ae81ff">1800</span><span style="color: #f8f8f2">)</span>
+            <span style="color: #f8f8f2">get_artist_info(artist)</span>
+        <span style="color: #66d9ef">if</span> <span style="color: #f8f8f2">e</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">http_status</span> <span style="color: #f92672">==</span> <span style="color: #ae81ff">503</span><span style="color: #f8f8f2">:</span>
+            <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(e)</span>
+            <span style="color: #66d9ef">print</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&quot;Error 503 Retry in 60 seconds&quot;</span><span style="color: #f8f8f2">)</span>
+            <span style="color: #f8f8f2">time</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">sleep(</span><span style="color: #ae81ff">1800</span><span style="color: #f8f8f2">)</span>
+            <span style="color: #f8f8f2">get_artist_info(artist)</span>
+        <span style="color: #66d9ef">else</span><span style="color: #f8f8f2">:</span>
+            <span style="color: #66d9ef">raise</span> <span style="color: #f8f8f2">e</span>
+</pre></div>
+		<p>La función ‘get_artist_info’ nos permite obtener la información del artista haciendo uso de ‘spotify.artist(artist_id)’. En caso de ocurrir alguna excepción, el código ejecuta el bloque ‘except’.</p>
+		<p>En caso de presentarse e.http_status == 429 para solventar este problema ejecutamos time.sleep(1800). El programa se detendrá 1800 segundos (30 minutos) y nos garantizará  un tiempo de espera suficiente para que el límite de tasa se restablezca.</p>
+		<p>En caso de obtener e.http_status == 503 procedemos a realizar la misma acción que con el Error 429.</p> 
+		<p>Si la excepción es diferente de 429 o 503 será devuelta al lugar donde se llamó a la función ‘get_artist_info’ permitiendo que el código que llama a la función maneje la excepción y a partir de ahí, obtengamos información sobre otros posibles errores.</p>
+		<p>Si bien la adaptación del código nos permite solucionar estos posibles fallos y evitar que el programa no responda bien a causa de las limitaciones de la API de Spotify esto conlleva un aumento del tiempo a la hora de obtener los datos. No obstante, es una buena forma de resolver estos problemas de la API.</p>
+		<p>Por otra parte, nos encontramos al extraer información de Spotify con la limitación del campo obtenido de géneros del artista unidos de esta forma:</p>
+		<p>['reggaeton', 'reggaeton flow', 'trap latino', 'urbano latino']</p>
+		<p>Para separarlos, haciendo uso de excel, procedimos a seleccionar la columna y a través de la función Dividir texto en columnas usando la coma como delimitador conseguimos separar los géneros en otras columnas. Además, para trabajar con unos datos más limpios procedimos a eliminar comillas simples y corchetes haciendo uso de la función buscar y reemplazar.</p>
+
 		<h3>Presentación del dataset</h3>
                 <p>(poner html del dataset)</p>
 		<p>El dataset en cuestión recoge información sobre 74 playlists de Spotify, cada una representando un país diferente de todo el mundo. Con un total de 3651 filas y 31 columnas, este conjunto de datos proporciona una visión amplia de la popularidad musical global y las características de las canciones incluidas en estas playlists.</p>
                 <p>El dataset contiene, 3651 filas que dada fila representa una canción única incluida en una de las 74 playlists, y 31 columnas que abarcan diversas características tanto de los artistas como de las canciones. </p>
 		<p>En cuanto a la integridad de los datos, es importante señalar qué información está disponible y cuál podría estar incompleta. Las columnas incluyen, entre otras, información sobre el número de seguidores del artista, géneros musicales, popularidad del artista, características de las canciones (como danceability, energy, key, loudness… y detalles específicos de las canciones (como duración, popularidad, nombre, y si es explícita o no). </p>
 		<p>Los datos presentes en cuestion, para ser entendidos, son los siguientes:
-		<b>artist_followers:</b> Número de seguidores del artista.
-		<b>artist_genres:</b> Géneros musicales del artista.
-		<b>artist_id:</b> Identificador único del artista en Spotify.
-		<b>artist_popularity:</b> Popularidad del artista en Spotify.
-		<b>danceability:</b> La capacidad de bailar de la canción. (1.0 es la pista más bailable)
-		<b>energy:</b> La energía de la canción. (1.0 representa la canción más energética)
-		<b>key:</b> La clave tonal de la canción (0 = Do, 1 = Do#, etc.).
-		<b>loudness:</b> El volumen general de la pista en decibelios (dB).
-		<b>mode:</b> El modo de la canción (0 = menor, 1 = mayor)
-		<b>speechiness:</b> La presencia de palabras habladas en la pista. (1.0 representa la pista completamente hablada)
-		<b>acousticness:</b> La probabilidad de que la canción sea acústica.(1.0 representa una canción completamente acústica)
-		<b>instrumentalness:</b> La probabilidad de que la canción no contenga voces. (1.0 representa una pista completamente instrumental.
-		<b>liveness:</b> La probabilidad de que la canción se haya grabado en vivo. (1.0 representa una pista en vivo)
-		<b>valence:</b> La positividad de la canción. (1.0 es la pista más positiva)
-		<b>tempo:</b> El tempo estimado de la canción en BPM (beats por minuto).
-		<b>type:</b> Tipo de objeto en Spotify.
-		<b>id uri, track_href, analysis_url:</b> Detalles y enlaces de la canción.
-		<b>duration_ms_x, duration_ms_y time_signature, track_id:</b> Información sobre la duración y la métrica de la canción.
-		<b>artistas:</b> Nombre de los artistas.
-		<b>track_name:</b> Nombre de la canción
-		<b>popularity:</b> Popularidad de la canción en Spotify.
-		<b>primer_artista_id, playlist_id, playlist:</b> Información sobre la playlist.
-		<b>explicit:</b> Indica si la canción contiene contenido explícito.
+		<p><b>artist_followers:</b> Número de seguidores del artista.</p>
+		<p><b>artist_genres:</b> Géneros musicales del artista.</p>
+		<p><b>artist_id:</b> Identificador único del artista en Spotify.</p>
+		<p><b>artist_popularity:</b> Popularidad del artista en Spotify.</p>
+		<p><b>danceability:</b> La capacidad de bailar de la canción. (1.0 es la pista más bailable)</p>
+		<p><b>energy:</b> La energía de la canción. (1.0 representa la canción más energética)</p>
+		<p><b>key:</b> La clave tonal de la canción (0 = Do, 1 = Do#, etc.).</p>
+		<p><b>loudness:</b> El volumen general de la pista en decibelios (dB).</p>
+		<p><b>mode:</b> El modo de la canción (0 = menor, 1 = mayor)</p>
+		<p><b>speechiness:</b> La presencia de palabras habladas en la pista. (1.0 representa la pista completamente hablada)</p>
+		<p><b>acousticness:</b> La probabilidad de que la canción sea acústica. (1.0 representa una canción completamente acústica)</p>
+		<p><b>instrumentalness:</b> La probabilidad de que la canción no contenga voces. (1.0 representa una pista completamente instrumental)</p>
+		<p><b>liveness:</b> La probabilidad de que la canción se haya grabado en vivo. (1.0 representa una pista en vivo)</p>
+		<p><b>valence:</b> La positividad de la canción. (1.0 es la pista más positiva)</p>
+		<p><b>tempo:</b> El tempo estimado de la canción en BPM (beats por minuto).</p>
+		<p><b>type:</b> Tipo de objeto en Spotify.</p>
+		<p><b>id uri, track_href, analysis_url:</b> Detalles y enlaces de la canción.</p>
+		<p><b>duration_ms_x, duration_ms_y time_signature, track_id:</b> Información sobre la duración y la métrica de la canción.</p>
+		<p><b>artistas:</b> Nombre de los artistas.</p>
+		<p><b>track_name:</b> Nombre de la canción.</p>
+		<p><b>popularity:</b> Popularidad de la canción en Spotify.</p>
+		<p><b>primer_artista_id, playlist_id, playlist:</b> Información sobre la playlist.</p>
+		<p><b>explicit:</b> Indica si la canción contiene contenido explícito.
 		</p>
-<!-- HTML generated using hilite.me --><div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f92672">import</span> <span style="color: #f8f8f2">spotipy</span>
-<span style="color: #f92672">from</span> <span style="color: #f8f8f2">spotipy.oauth2</span> <span style="color: #f92672">import</span> <span style="color: #f8f8f2">SpotifyClientCredentials</span>
-<span style="color: #f92672">import</span> <span style="color: #f8f8f2">json</span>
 
-<span style="color: #f8f8f2">api_client_id</span> <span style="color: #f92672">=</span> <span style="color: #e6db74">&quot;&quot;</span>
-<span style="color: #f8f8f2">api_client_secret</span> <span style="color: #f92672">=</span> <span style="color: #e6db74">&quot;&quot;</span>
-
-<span style="color: #f8f8f2">spotify</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">spotipy</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">Spotify(client_credentials_manager</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">SpotifyClientCredentials(api_client_id,api_client_secret))</span>
-
-<span style="color: #f8f8f2">results</span> <span style="color: #f92672">=</span> <span style="color: #f8f8f2">spotify</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">artist_related_artists(</span><span style="color: #e6db74">&quot;&quot;</span><span style="color: #f8f8f2">)</span>
-
-<span style="color: #75715e"># OPCION 1</span>
-<span style="color: #66d9ef">with</span> <span style="color: #f8f8f2">open(</span><span style="color: #e6db74">&#39;data.json&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&#39;w&#39;</span><span style="color: #f8f8f2">)</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">f:</span>
-    <span style="color: #f8f8f2">json</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">dump(results,</span> <span style="color: #f8f8f2">f)</span>
-
-<span style="color: #75715e"># OPCION 2</span>
-<span style="color: #66d9ef">with</span> <span style="color: #f8f8f2">open(</span><span style="color: #e6db74">&#39;data_clean.json&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #e6db74">&#39;w&#39;</span><span style="color: #f8f8f2">,</span> <span style="color: #f8f8f2">encoding</span><span style="color: #f92672">=</span><span style="color: #e6db74">&#39;utf-8&#39;</span><span style="color: #f8f8f2">)</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">f:</span>
-    <span style="color: #f8f8f2">json</span><span style="color: #f92672">.</span><span style="color: #f8f8f2">dump(results,</span> <span style="color: #f8f8f2">f,</span> <span style="color: #f8f8f2">ensure_ascii</span><span style="color: #f92672">=</span><span style="color: #f8f8f2">False,</span> <span style="color: #f8f8f2">indent</span><span style="color: #f92672">=</span><span style="color: #ae81ff">4</span><span style="color: #f8f8f2">)</span>
-</pre></div>
-
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
                 <!-- Exemple de Fragment de codi generat amb http://hilite.me/ -->
                 <div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #f92672">import</span> <span style="color: #f8f8f2">capturer.crawler</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">c</span>
     <span style="color: #f92672">import</span> <span style="color: #f8f8f2">export</span> <span style="color: #66d9ef">as</span> <span style="color: #f8f8f2">e</span>
